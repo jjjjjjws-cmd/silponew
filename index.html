@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>공사 사진 관리 시스템</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f4a020" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SITELENS" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       LOGIN SECTION
+  ═══════════════════════════════════════ -->
+  <section id="section-login" class="section-active">
+    <div class="login-wrap">
+      <div class="login-brand">
+        <div class="brand-icon">📷</div>
+        <h1 class="brand-title">SITE<span>LENS</span></h1>
+        <p class="brand-sub">공사 현장 사진 관리 시스템</p>
+      </div>
+      <div class="login-card">
+        <label class="field-label">액세스 코드</label>
+        <input type="password" id="login-code" class="field-input" placeholder="코드를 입력하세요" autocomplete="off" />
+        <div id="login-error" class="error-msg hidden">코드가 올바르지 않습니다</div>
+        <button class="btn btn-primary btn-full" onclick="handleLogin()">로그인</button>
+      </div>
+      <p class="login-hint">슈퍼관리자 · 오너 · 업체 코드로 접속</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SUPER ADMIN SECTION
+  ═══════════════════════════════════════ -->
+  <section id="section-super" class="hidden">
+    <header class="app-header">
+      <div class="header-left">
+        <span class="header-badge badge-super">SUPER</span>
+        <span class="header-title">관리자</span>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
+    </header>
+
+    <main class="app-main">
+      <div class="card">
+        <h2 class="card-title">고객사 생성</h2>
+        <div class="field-group">
+          <label class="field-label">고객사명</label>
+          <input type="text" id="super-customer-name" class="field-input" placeholder="예: 다이소" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">고객사 ID</label>
+          <input type="text" id="super-customer-id" class="field-input" placeholder="예: daiso (영문소문자)" />
+        </div>
+        <button class="btn btn-primary" onclick="createCustomer()">고객사 생성</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">고객사 목록</h2>
+        <div id="super-customer-list" class="list-container">
+          <p class="empty-msg">등록된 고객사가 없습니다</p>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       OWNER SECTION
+  ═══════════════════════════════════════ -->
+  <section id="section-owner" class="hidden">
+    <header class="app-header">
+      <div class="header-left">
+        <span class="header-badge badge-owner">OWNER</span>
+        <span class="header-title" id="owner-customer-name">오너</span>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
+    </header>
+
+    <nav class="tab-nav">
+      <button class="tab-btn tab-active" onclick="switchOwnerTab('companies')">업체 관리</button>
+      <button class="tab-btn" onclick="switchOwnerTab('status')">업체 현황</button>
+      <button class="tab-btn" onclick="switchOwnerTab('archive')">전체 보관함</button>
+    </nav>
+
+    <main class="app-main">
+      <div id="owner-tab-companies" class="tab-content">
+        <div class="card">
+          <h2 class="card-title">업체 코드 생성</h2>
+          <div class="field-group">
+            <label class="field-label">업체명</label>
+            <input type="text" id="owner-company-name" class="field-input" placeholder="예: 블라인드업체A" />
+          </div>
+          <button class="btn btn-primary" onclick="createCompany()">코드 생성</button>
+        </div>
+        <div class="card">
+          <h2 class="card-title">등록 업체 목록</h2>
+          <div id="owner-company-list" class="list-container">
+            <p class="empty-msg">등록된 업체가 없습니다</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="owner-tab-status" class="tab-content hidden">
+        <div class="card">
+          <h2 class="card-title">실시간 현황</h2>
+          <div id="owner-status-list" class="list-container">
+            <p class="empty-msg">업체 정보가 없습니다</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="owner-tab-archive" class="tab-content hidden">
+        <div class="card">
+          <h2 class="card-title">전체 작업 보관함</h2>
+          <div class="search-bar">
+            <input type="text" id="owner-search" class="field-input" placeholder="매장명 검색..." oninput="filterOwnerArchive()" />
+            <input type="date" id="owner-date-filter" class="field-input date-input" onchange="filterOwnerArchive()" />
+          </div>
+          <div id="owner-archive-list" class="list-container">
+            <p class="empty-msg">작업 내역이 없습니다</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       COMPANY SECTION
+  ═══════════════════════════════════════ -->
+  <section id="section-company" class="hidden">
+    <header class="app-header">
+      <div class="header-left">
+        <span class="header-badge badge-company">업체</span>
+        <span class="header-title" id="company-name-header">업체</span>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
+    </header>
+
+    <nav class="tab-nav">
+      <button class="tab-btn tab-active" onclick="switchCompanyTab('work')">작업</button>
+      <button class="tab-btn" onclick="switchCompanyTab('archive')">내 보관함</button>
+    </nav>
+
+    <main class="app-main">
+      <div id="company-tab-work" class="tab-content">
+
+        <div class="card status-card">
+          <div class="status-row">
+            <div class="status-info">
+              <span class="status-label">작업 상태</span>
+              <span id="company-status-text" class="status-text status-idle">⚪ 대기중</span>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="company-working-toggle" onchange="toggleWorking()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="divider"></div>
+          <label class="field-label">오늘 동선</label>
+          <div class="route-row">
+            <input type="text" id="company-route-input" class="field-input" placeholder="예: 강남 → 홍대 → 신촌" />
+            <button class="btn btn-sm btn-secondary" onclick="saveRoute()">저장</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">사진 작업</h2>
+          <div class="field-group">
+            <label class="field-label">매장명</label>
+            <input type="text" id="company-store-name" class="field-input" placeholder="예: 다이소 강남점" />
+          </div>
+
+          <div class="phase-tabs">
+            <button class="phase-btn phase-active" onclick="switchPhase('before')">전 (공사 전)</button>
+            <button class="phase-btn" onclick="switchPhase('during')">중 (공사 중)</button>
+            <button class="phase-btn" onclick="switchPhase('after')">후 (공사 후)</button>
+          </div>
+
+          <div id="phase-before" class="phase-content">
+            <div class="photo-grid" id="preview-before"></div>
+            <div class="photo-actions">
+              <label class="btn btn-add">
+                📷 사진 추가
+                <input type="file" accept="image/*" multiple capture="environment" onchange="addPhotos('before', this)" class="hidden-file" />
+              </label>
+              <button class="btn btn-sm btn-danger" onclick="clearPhase('before')">전체 삭제</button>
+            </div>
+            <p class="photo-count" id="count-before">0장</p>
+          </div>
+
+          <div id="phase-during" class="phase-content hidden">
+            <div class="photo-grid" id="preview-during"></div>
+            <div class="photo-actions">
+              <label class="btn btn-add">
+                📷 사진 추가
+                <input type="file" accept="image/*" multiple capture="environment" onchange="addPhotos('during', this)" class="hidden-file" />
+              </label>
+              <button class="btn btn-sm btn-danger" onclick="clearPhase('during')">전체 삭제</button>
+            </div>
+            <p class="photo-count" id="count-during">0장</p>
+          </div>
+
+          <div id="phase-after" class="phase-content hidden">
+            <div class="photo-grid" id="preview-after"></div>
+            <div class="photo-actions">
+              <label class="btn btn-add">
+                📷 사진 추가
+                <input type="file" accept="image/*" multiple capture="environment" onchange="addPhotos('after', this)" class="hidden-file" />
+              </label>
+              <button class="btn btn-sm btn-danger" onclick="clearPhase('after')">전체 삭제</button>
+            </div>
+            <p class="photo-count" id="count-after">0장</p>
+          </div>
+
+          <button class="btn btn-primary btn-full btn-complete" onclick="completeWork()" id="btn-complete">
+            ✅ 작업 완료 저장
+          </button>
+          <div id="upload-progress" class="upload-progress hidden">
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <p class="progress-text" id="progress-text">업로드 중...</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="company-tab-archive" class="tab-content hidden">
+        <div class="card">
+          <h2 class="card-title">내 작업 보관함</h2>
+          <div class="search-bar">
+            <input type="text" id="company-search" class="field-input" placeholder="매장명 검색..." oninput="filterCompanyArchive()" />
+            <input type="date" id="company-date-filter" class="field-input date-input" onchange="filterCompanyArchive()" />
+          </div>
+          <div id="company-archive-list" class="list-container">
+            <p class="empty-msg">작업 내역이 없습니다</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       MODAL
+  ═══════════════════════════════════════ -->
+  <div id="photo-modal" class="modal hidden" onclick="closePhotoModal()">
+    <div class="modal-inner" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closePhotoModal()">✕</button>
+      <div id="modal-archive-title" class="modal-title"></div>
+      <div id="modal-photos" class="modal-photos"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, get, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject, listAll } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChw0CkdW_hbc3Tr9fFvr_X2ZbILjhCuFo",
+      authDomain: "mercury-c8350.firebaseapp.com",
+      databaseURL: "https://mercury-c8350-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mercury-c8350",
+      storageBucket: "mercury-c8350.firebasestorage.app",
+      messagingSenderId: "400254600144",
+      appId: "1:400254600144:web:088f65fe3a783cfa45efd5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window._db = getDatabase(app);
+    window._storage = getStorage(app);
+    window._firebaseRef = ref;
+    window._storageRef = storageRef;
+    window._set = set;
+    window._get = get;
+    window._remove = remove;
+    window._onValue = onValue;
+    window._update = update;
+    window._uploadBytes = uploadBytes;
+    window._getDownloadURL = getDownloadURL;
+    window._deleteObject = deleteObject;
+    window._listAll = listAll;
+
+    const script = document.createElement('script');
+    script.src = 'app.js';
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
