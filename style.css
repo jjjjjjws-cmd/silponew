@@ -856,12 +856,6 @@ body {
 section { display: none; flex-direction: column; min-height: 100vh; }
 
 #section-login { display: flex; }
-#section-super,
-#section-owner,
-#section-company {
-  display: none;
-  flex-direction: column;
-}
 
 /* ══════════════════════════════════════════
    RESPONSIVE
@@ -875,3 +869,10 @@ section { display: none; flex-direction: column; min-height: 100vh; }
   .modal { align-items: center; }
   .modal-inner { border-radius: var(--radius); max-height: 85vh; }
 }
+
+/* ── 다운로드 버튼 ── */
+.btn-download-zip {
+  color: var(--green) !important;
+  border-color: rgba(34,197,94,0.3) !important;
+}
+.btn-download-zip:hover { background: rgba(34,197,94,0.1) !important; }
