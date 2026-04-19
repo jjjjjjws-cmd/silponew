@@ -34,9 +34,12 @@ function showToast(msg, duration = 2500) {
 
 function showSection(id) {
   ['section-login','section-super','section-owner','section-company'].forEach(s => {
-    document.getElementById(s).style.display = 'none';
+    const el = document.getElementById(s);
+    el.style.display = 'none';
+    el.classList.add('hidden');
   });
   const target = document.getElementById(id);
+  target.classList.remove('hidden');
   target.style.display = 'flex';
   target.style.flexDirection = 'column';
 }
