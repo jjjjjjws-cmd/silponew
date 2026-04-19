@@ -33,15 +33,12 @@ function showToast(msg, duration = 2500) {
 }
 
 function showSection(id) {
-  ['section-login','section-super','section-owner','section-company'].forEach(s => {
+  ["section-login","section-super","section-owner","section-company"].forEach(s => {
     const el = document.getElementById(s);
-    el.style.display = 'none';
-    el.classList.add('hidden');
+    el.style.cssText = "display: none !important";
   });
   const target = document.getElementById(id);
-  target.classList.remove('hidden');
-  target.style.display = 'flex';
-  target.style.flexDirection = 'column';
+  target.style.cssText = "display: flex !important; flex-direction: column";
 }
 
 function today() {
